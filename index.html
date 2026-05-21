@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Khảo sát nghiệp vụ kế toán ERP – SME</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:    #1a56db; --blue-d: #1e429f; --blue-l: #e8f0fe;
+      --green:   #0e9f6e; --green-l: #d1fae5;
+      --amber:   #d97706; --amber-l: #fef3c7;
+      --red:     #ef4444;
+      --g50: #f9fafb; --g100: #f3f4f6; --g200: #e5e7eb;
+      --g400: #9ca3af; --g600: #4b5563; --g700: #374151; --g900: #111827;
+      --r: 10px; --sh: 0 2px 16px rgba(0,0,0,.07);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--g50); color: var(--g900); min-height: 100vh; padding: 24px 16px 80px; }
+    .wrap { max-width: 740px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .hdr { text-align:center; margin-bottom:28px; }
+    .hdr .badge { display:inline-block; background:var(--blue-l); color:var(--blue); font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; padding:4px 12px; border-radius:999px; margin-bottom:10px; }
+    .hdr h1 { font-size:24px; font-weight:700; line-height:1.3; margin-bottom:8px; }
+    .hdr p  { color:var(--g600); font-size:14px; line-height:1.6; max-width:560px; margin:0 auto; }
+
+    /* ── Progress ── */
+    .prog-bar { background:var(--g200); border-radius:999px; height:6px; margin-bottom:6px; overflow:hidden; }
+    .prog-fill { height:100%; background:var(--blue); border-radius:999px; transition:width .4s; }
+    .prog-lbl   { display:flex; justify-content:space-between; font-size:12px; color:var(--g600); margin-bottom:20px; }
+    .prog-lbl b { color:var(--blue); }
+
+    /* ── Card ── */
+    .card { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:28px 32px; margin-bottom:14px; display:none; }
+    .card.active { display:block; }
+    .sec-tag { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); margin-bottom:5px; }
+    .card h2  { font-size:19px; font-weight:700; margin-bottom:5px; }
+    .card .sdesc { font-size:13px; color:var(--g600); margin-bottom:24px; line-height:1.55; }
+
+    /* ── Module badge in header ── */
+    .mod-badge { display:inline-flex; align-items:center; gap:5px; background:var(--amber-l); color:var(--amber); font-size:11px; font-weight:700; padding:3px 10px; border-radius:6px; margin-bottom:6px; }
+
+    /* ── Form elements ── */
+    .fg { margin-bottom:20px; }
+    .lbl { display:block; font-size:13px; font-weight:600; color:var(--g700); margin-bottom:7px; }
+    .lbl .req { color:var(--red); margin-left:2px; }
+    .hint { font-size:12px; color:var(--g400); margin-top:-4px; margin-bottom:7px; }
+
+    input[type=text], input[type=email], select, textarea {
+      width:100%; padding:9px 13px; border:1.5px solid var(--g200); border-radius:8px;
+      font-size:13px; color:var(--g900); background:#fff; outline:none; font-family:inherit;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input[type=text]:focus, input[type=email]:focus, select:focus, textarea:focus {
+      border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,86,219,.1);
+    }
+    textarea { resize:vertical; min-height:80px; }
+
+    /* ── Option tiles ── */
+    .opts { display:grid; gap:7px; }
+    .opts.c2 { grid-template-columns:1fr 1fr; }
+    .opts.c3 { grid-template-columns:1fr 1fr 1fr; }
+    .opt { display:flex; align-items:flex-start; gap:9px; padding:9px 13px; border:1.5px solid var(--g200); border-radius:8px; cursor:pointer; transition:border-color .12s, background .12s; }
+    .opt:hover { border-color:var(--blue); background:var(--blue-l); }
+    .opt input { width:auto; margin-top:2px; accent-color:var(--blue); flex-shrink:0; }
+    .opt .ot   { font-size:13px; color:var(--g700); line-height:1.4; }
+    .opt .os   { font-size:11px; color:var(--g400); margin-top:1px; display:block; }
+    .opt.sel   { border-color:var(--blue); background:var(--blue-l); }
+
+    /* ── Scale ── */
+    .scale-row  { display:flex; gap:6px; flex-wrap:wrap; }
+    .scale-ends { display:flex; justify-content:space-between; font-size:11px; color:var(--g400); margin-top:4px; }
+    .sbt { width:38px; height:38px; border:1.5px solid var(--g200); border-radius:7px; background:#fff; font-size:13px; font-weight:600; color:var(--g600); cursor:pointer; transition:all .12s; display:flex; align-items:center; justify-content:center; }
+    .sbt:hover { border-color:var(--blue); color:var(--blue); }
+    .sbt.sel   { background:var(--blue); border-color:var(--blue); color:#fff; }
+
+    /* ── Divider ── */
+    hr.div { border:none; border-top:1px solid var(--g100); margin:20px 0; }
+
+    /* ── Nav ── */
+    .nav { display:flex; justify-content:space-between; gap:10px; margin-top:28px; }
+    .btn { padding:10px 22px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; border:none; font-family:inherit; transition:all .12s; }
+    .btn-p  { background:var(--blue);  color:#fff; flex:1; }
+    .btn-p:hover  { background:var(--blue-d); }
+    .btn-s  { background:#fff; color:var(--g700); border:1.5px solid var(--g200); }
+    .btn-s:hover  { border-color:var(--g400); }
+    .btn-ok { background:var(--green); color:#fff; flex:1; }
+    .btn-ok:hover { filter:brightness(.92); }
+
+    /* ── Validation ── */
+    .err { color:var(--red); font-size:11px; margin-top:4px; display:none; }
+    .fe input, .fe select, .fe textarea { border-color:var(--red); }
+    .fe .err { display:block; }
+
+    /* ── Info callout ── */
+    .callout { background:var(--blue-l); border-left:3px solid var(--blue); border-radius:0 8px 8px 0; padding:10px 14px; font-size:13px; color:var(--blue-d); margin-bottom:20px; line-height:1.5; }
+
+    /* ── Success ── */
+    .success { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:48px 32px; text-align:center; display:none; }
+    .success.active { display:block; }
+    .succ-ico { width:60px; height:60px; background:var(--green-l); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-size:26px; }
+    .success h2 { font-size:21px; margin-bottom:10px; }
+    .success p  { color:var(--g600); font-size:14px; line-height:1.6; }
+    .btn-dl { display:inline-block; margin-top:20px; padding:10px 22px; background:var(--blue); color:#fff; border-radius:8px; font-weight:600; cursor:pointer; border:none; font-size:13px; font-family:inherit; }
+    .btn-dl:hover { background:var(--blue-d); }
+
+    .foot { text-align:center; font-size:12px; color:var(--g400); margin-top:20px; }
+
+    @media(max-width:600px) {
+      .card { padding:20px 16px; }
+      .opts.c2, .opts.c3 { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Header -->
+<div class="hdr">
+  <div class="badge">Khảo sát ERP Kế toán</div>
+  <h1>Nghiệp vụ kế toán cho doanh nghiệp vừa và nhỏ</h1>
+  <p>Dữ liệu thu thập phục vụ xây dựng tài liệu nghiệp vụ (user stories &amp; business rules) cho module kế toán trong hệ thống ERP. Hoàn toàn ẩn danh · ~12–18 phút.</p>
+</div>
+
+<!-- Progress -->
+<div class="prog-bar"><div class="prog-fill" id="pFill" style="width:10%"></div></div>
+<div class="prog-lbl"><b id="pLbl">Phần 1</b><span id="pPct">10%</span></div>
+
+<!-- ════════════════════════════════════════
+     SECTION 1 — Thông tin chung & chọn module
+════════════════════════════════════════ -->
+<div class="card active" id="s1">
+  <div class="sec-tag">Phần 1 / Bước thiết yếu</div>
+  <h2>Thông tin doanh nghiệp &amp; phạm vi module</h2>
+  <p class="sdesc">Câu trả lời ở đây quyết định những phần nào sẽ xuất hiện tiếp theo.</p>
+
+  <div class="fg" id="fg-size">
+    <label class="lbl">Quy mô doanh nghiệp<span class="req">*</span></label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="size" value="micro"> <span class="ot">1–9 người <span class="os">Siêu nhỏ</span></span></label>
+      <label class="opt"><input type="radio" name="size" value="small"> <span class="ot">10–50 người <span class="os">Nhỏ</span></span></label>
+      <label class="opt"><input type="radio" name="size" value="medium"> <span class="ot">51–200 người <span class="os">Vừa</span></span></label>
+      <label class="opt"><input type="radio" name="size" value="large"> <span class="ot">Trên 200 người</span></label>
+    </div>
+    <div class="err">Vui lòng chọn quy mô.</div>
+  </div>
+
+  <div class="fg" id="fg-industry">
+    <label class="lbl">Ngành nghề chính<span class="req">*</span></label>
+    <select name="industry" id="sel-industry">
+      <option value="">-- Chọn ngành --</option>
+      <option value="trade">Thương mại / Phân phối</option>
+      <option value="manufacturing">Sản xuất / Chế biến</option>
+      <option value="services">Dịch vụ (tư vấn, IT, ...)</option>
+      <option value="construction">Xây dựng / Bất động sản</option>
+      <option value="fmcg">Bán lẻ / F&B</option>
+      <option value="education">Giáo dục / Đào tạo</option>
+      <option value="healthcare">Y tế / Dược phẩm</option>
+      <option value="other">Khác</option>
+    </select>
+    <div class="err">Vui lòng chọn ngành.</div>
+  </div>
+
+  <div class="fg" id="fg-std">
+    <label class="lbl">Chuẩn mực kế toán đang áp dụng<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="std" value="tt200"> <span class="ot">Thông tư 200/2014/TT-BTC <span class="os">Doanh nghiệp lớn — hệ thống tài khoản đầy đủ</span></span></label>
+      <label class="opt"><input type="radio" name="std" value="tt133"> <span class="ot">Thông tư 133/2016/TT-BTC <span class="os">SME — hệ thống tài khoản rút gọn</span></span></label>
+      <label class="opt"><input type="radio" name="std" value="mixed"> <span class="ot">Chưa thống nhất / đang chuyển đổi</span></label>
+    </div>
+    <div class="err">Vui lòng chọn chuẩn mực.</div>
+  </div>
+
+  <div class="fg" id="fg-role">
+    <label class="lbl">Vị trí của bạn<span class="req">*</span></label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="role" value="acc_staff"> <span class="ot">Kế toán viên</span></label>
+      <label class="opt"><input type="radio" name="role" value="chief_acc"> <span class="ot">Kế toán trưởng</span></label>
+      <label class="opt"><input type="radio" name="role" value="cfo"> <span class="ot">CFO / Giám đốc tài chính</span></label>
+      <label class="opt"><input type="radio" name="role" value="owner"> <span class="ot">Chủ doanh nghiệp</span></label>
+    </div>
+    <div class="err">Vui lòng chọn vị trí.</div>
+  </div>
+
+  <hr class="div">
+
+  <div class="fg" id="fg-modules">
+    <label class="lbl">Module kế toán nào ERP cần hỗ trợ? <span class="req">*</span></label>
+    <p class="hint">Chọn tất cả các module liên quan — survey sẽ tự điều chỉnh nội dung</p>
+    <div class="opts">
+      <label class="opt"><input type="checkbox" name="mod" value="ar" id="mod-ar"> <span class="ot">Công nợ phải thu (AR) <span class="os">Hóa đơn bán hàng, thu tiền khách hàng, theo dõi tuổi nợ</span></span></label>
+      <label class="opt"><input type="checkbox" name="mod" value="ap" id="mod-ap"> <span class="ot">Công nợ phải trả (AP) <span class="os">Hóa đơn mua hàng, thanh toán nhà cung cấp, 3-way matching</span></span></label>
+      <label class="opt"><input type="checkbox" name="mod" value="cash" id="mod-cash"> <span class="ot">Tiền mặt &amp; Ngân hàng <span class="os">Quỹ tiền mặt, giao dịch ngân hàng, đối chiếu</span></span></label>
+      <label class="opt"><input type="checkbox" name="mod" value="tax" id="mod-tax"> <span class="ot">Thuế &amp; Hóa đơn điện tử <span class="os">VAT đầu ra/vào, kê khai thuế, HĐĐT</span></span></label>
+      <label class="opt"><input type="checkbox" name="mod" value="payroll" id="mod-payroll"> <span class="ot">Kế toán lương <span class="os">Tính lương, BHXH/BHYT/BHTN, hạch toán chi phí nhân công</span></span></label>
+      <label class="opt"><input type="checkbox" name="mod" value="assets" id="mod-assets"> <span class="ot">Tài sản cố định (TSCĐ) <span class="os">Khấu hao, vòng đời tài sản, điều chuyển, thanh lý</span></span></label>
+      <label class="opt"><input type="checkbox" name="mod" value="inventory" id="mod-inventory"> <span class="ot">Kế toán hàng tồn kho <span class="os">Giá vốn hàng bán, phương pháp tính giá xuất kho, kiểm kê</span></span></label>
+      <label class="opt"><input type="checkbox" name="mod" value="gl" id="mod-gl"> <span class="ot">Sổ cái &amp; Báo cáo tài chính <span class="os">Bút toán, đóng kỳ, BCĐKT, BCKQKD, BCLCTT</span></span></label>
+    </div>
+    <div class="err" id="err-mod">Vui lòng chọn ít nhất một module.</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-p" onclick="go(1,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 2 — Phân quyền & vai trò (luôn hiển thị)
+════════════════════════════════════════ -->
+<div class="card" id="s2" data-always="1">
+  <div class="sec-tag">Phần 2 / Luôn cần thiết</div>
+  <h2>Vai trò &amp; Phân cấp phê duyệt</h2>
+  <p class="sdesc">Xác định <em>actor</em> cho từng user story — ai làm gì trong hệ thống kế toán.</p>
+
+  <div class="fg" id="fg-actors">
+    <label class="lbl">Vai trò nào tồn tại trong bộ phận kế toán của doanh nghiệp?<span class="req">*</span></label>
+    <p class="hint">Chọn tất cả vai trò hiện có (dù một người đảm nhiệm nhiều vai trò)</p>
+    <div class="opts">
+      <label class="opt"><input type="checkbox" name="actors" value="thu_quy"> <span class="ot">Thủ quỹ <span class="os">Thu/chi tiền mặt, giữ quỹ</span></span></label>
+      <label class="opt"><input type="checkbox" name="actors" value="kt_cong_no"> <span class="ot">Kế toán công nợ <span class="os">Theo dõi AR/AP, đối chiếu với khách hàng/NCC</span></span></label>
+      <label class="opt"><input type="checkbox" name="actors" value="kt_ngan_hang"> <span class="ot">Kế toán ngân hàng <span class="os">Quản lý tài khoản ngân hàng, lệnh chuyển tiền</span></span></label>
+      <label class="opt"><input type="checkbox" name="actors" value="kt_luong"> <span class="ot">Kế toán lương / nhân sự <span class="os">Tính lương, BHXH, quyết toán thuế TNCN</span></span></label>
+      <label class="opt"><input type="checkbox" name="actors" value="kt_thue"> <span class="ot">Kế toán thuế <span class="os">Kê khai VAT, TNDN, lập HĐĐT</span></span></label>
+      <label class="opt"><input type="checkbox" name="actors" value="kt_ts"> <span class="ot">Kế toán tài sản / kho <span class="os">Theo dõi TSCĐ, hàng tồn kho</span></span></label>
+      <label class="opt"><input type="checkbox" name="actors" value="kt_tong_hop"> <span class="ot">Kế toán tổng hợp <span class="os">Lập BCTC, bút toán điều chỉnh, đóng sổ</span></span></label>
+      <label class="opt"><input type="checkbox" name="actors" value="kt_truong"> <span class="ot">Kế toán trưởng / CFO <span class="os">Duyệt, kiểm soát, ký báo cáo</span></span></label>
+    </div>
+    <div class="err" id="err-actors">Vui lòng chọn ít nhất một vai trò.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Phân cấp phê duyệt hiện tại (chọn mô tả sát nhất)<span class="req">*</span></label>
+    <div class="opts" id="fg-approval-level">
+      <label class="opt"><input type="radio" name="approval_level" value="no_approval"> <span class="ot">Không có phê duyệt — kế toán tự xử lý toàn bộ</span></label>
+      <label class="opt"><input type="radio" name="approval_level" value="one_level"> <span class="ot">1 cấp — kế toán trưởng duyệt tất cả</span></label>
+      <label class="opt"><input type="radio" name="approval_level" value="two_level"> <span class="ot">2 cấp — kế toán trưởng &amp; giám đốc theo hạn mức</span></label>
+      <label class="opt"><input type="radio" name="approval_level" value="multi_level"> <span class="ot">Nhiều cấp — tuỳ loại giao dịch và bộ phận</span></label>
+    </div>
+    <div class="err">Vui lòng chọn phân cấp phê duyệt.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Hạn mức phê duyệt thanh toán (chỉ kế toán trưởng ký, không cần giám đốc)</label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="approval_limit" value="under5m"> <span class="ot">Dưới 5 triệu đồng</span></label>
+      <label class="opt"><input type="radio" name="approval_limit" value="5to20m"> <span class="ot">5 – 20 triệu đồng</span></label>
+      <label class="opt"><input type="radio" name="approval_limit" value="20to100m"> <span class="ot">20 – 100 triệu đồng</span></label>
+      <label class="opt"><input type="radio" name="approval_limit" value="no_limit"> <span class="ot">Không có hạn mức cố định</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Phê duyệt hiện tại được thực hiện bằng cách nào?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="approval_method" value="paper"> <span class="ot">Ký tay trên giấy tờ / chứng từ in</span></label>
+      <label class="opt"><input type="radio" name="approval_method" value="email"> <span class="ot">Gửi email xin duyệt</span></label>
+      <label class="opt"><input type="radio" name="approval_method" value="chat"> <span class="ot">Nhắn tin (Zalo, Teams, ...)</span></label>
+      <label class="opt"><input type="radio" name="approval_method" value="system"> <span class="ot">Duyệt trực tiếp trong phần mềm</span></label>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(2,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(2,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 3 — AR: Công nợ phải thu
+════════════════════════════════════════ -->
+<div class="card" id="s3" data-mod="ar">
+  <div class="mod-badge">📥 Module AR</div>
+  <div class="sec-tag">Công nợ phải thu</div>
+  <h2>Quy trình thu tiền &amp; theo dõi công nợ khách hàng</h2>
+  <p class="sdesc">Mỗi câu hỏi tương ứng với một nhóm user story trong module AR.</p>
+
+  <div class="callout">
+    <strong>Dành cho:</strong> Người theo dõi hóa đơn bán hàng, thu tiền từ khách hàng, quản lý tuổi nợ.
+  </div>
+
+  <div class="fg" id="fg-ar-trigger">
+    <label class="lbl">Hóa đơn bán hàng được tạo khi nào?<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="ar_trigger" value="on_order"> <span class="ot">Khi xác nhận đơn hàng / ký hợp đồng</span></label>
+      <label class="opt"><input type="radio" name="ar_trigger" value="on_delivery"> <span class="ot">Khi giao hàng / hoàn thành dịch vụ</span></label>
+      <label class="opt"><input type="radio" name="ar_trigger" value="on_payment"> <span class="ot">Khi khách thanh toán (xuất hóa đơn sau)</span></label>
+      <label class="opt"><input type="radio" name="ar_trigger" value="mixed_ar"> <span class="ot">Tuỳ loại khách hàng / hợp đồng</span></label>
+    </div>
+    <div class="err">Vui lòng chọn thời điểm tạo hóa đơn.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Thông tin bắt buộc trên hóa đơn bán hàng (chọn tất cả áp dụng)</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="ar_fields" value="customer_code"> <span class="ot">Mã khách hàng</span></label>
+      <label class="opt"><input type="checkbox" name="ar_fields" value="tax_code"> <span class="ot">Mã số thuế khách hàng</span></label>
+      <label class="opt"><input type="checkbox" name="ar_fields" value="contract_ref"> <span class="ot">Số hợp đồng tham chiếu</span></label>
+      <label class="opt"><input type="checkbox" name="ar_fields" value="delivery_note"> <span class="ot">Số phiếu xuất kho / biên bản</span></label>
+      <label class="opt"><input type="checkbox" name="ar_fields" value="cost_center"> <span class="ot">Trung tâm chi phí / dự án</span></label>
+      <label class="opt"><input type="checkbox" name="ar_fields" value="payment_terms"> <span class="ot">Điều khoản thanh toán</span></label>
+      <label class="opt"><input type="checkbox" name="ar_fields" value="bank_info"> <span class="ot">Thông tin tài khoản ngân hàng</span></label>
+      <label class="opt"><input type="checkbox" name="ar_fields" value="salesperson"> <span class="ot">Nhân viên kinh doanh phụ trách</span></label>
+    </div>
+  </div>
+
+  <div class="fg" id="fg-ar-terms">
+    <label class="lbl">Điều khoản thanh toán phổ biến nhất với khách hàng<span class="req">*</span></label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="ar_terms" value="immediate"> <span class="ot">Thanh toán ngay (0 ngày)</span></label>
+      <label class="opt"><input type="radio" name="ar_terms" value="net15"> <span class="ot">15 ngày</span></label>
+      <label class="opt"><input type="radio" name="ar_terms" value="net30"> <span class="ot">30 ngày</span></label>
+      <label class="opt"><input type="radio" name="ar_terms" value="net60plus"> <span class="ot">60 ngày trở lên</span></label>
+    </div>
+    <div class="err">Vui lòng chọn điều khoản thanh toán.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Có áp dụng hạn mức công nợ (credit limit) cho từng khách hàng không?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="ar_credit_limit" value="yes_hard"> <span class="ot">Có — hệ thống phải chặn không cho xuất hàng khi vượt hạn mức</span></label>
+      <label class="opt"><input type="radio" name="ar_credit_limit" value="yes_soft"> <span class="ot">Có — chỉ cảnh báo, vẫn cho phép tiếp tục sau khi duyệt</span></label>
+      <label class="opt"><input type="radio" name="ar_credit_limit" value="no"> <span class="ot">Không áp dụng hạn mức</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Quy trình nhắc nợ khi công nợ quá hạn hiện tại</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="ar_dunning" value="auto_email"> <span class="ot">Hệ thống tự gửi email nhắc nợ theo số ngày quá hạn</span></label>
+      <label class="opt"><input type="radio" name="ar_dunning" value="manual_call"> <span class="ot">Nhân viên gọi điện / nhắn tin thủ công</span></label>
+      <label class="opt"><input type="radio" name="ar_dunning" value="report_only"> <span class="ot">Chỉ xem báo cáo, không có quy trình nhắc nợ chính thức</span></label>
+      <label class="opt"><input type="radio" name="ar_dunning" value="none"> <span class="ot">Chưa có quy trình nhắc nợ</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Phân loại tuổi nợ (aging) theo kỳ hạn nào? (chọn tất cả cần thiết)</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="ar_aging" value="current"> <span class="ot">Chưa đến hạn</span></label>
+      <label class="opt"><input type="checkbox" name="ar_aging" value="1_30"> <span class="ot">Quá hạn 1–30 ngày</span></label>
+      <label class="opt"><input type="checkbox" name="ar_aging" value="31_60"> <span class="ot">Quá hạn 31–60 ngày</span></label>
+      <label class="opt"><input type="checkbox" name="ar_aging" value="61_90"> <span class="ot">Quá hạn 61–90 ngày</span></label>
+      <label class="opt"><input type="checkbox" name="ar_aging" value="90plus"> <span class="ot">Quá hạn trên 90 ngày</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Báo cáo AR nào doanh nghiệp cần thường xuyên? (chọn tất cả)</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="ar_reports" value="aging_report"> <span class="ot">Báo cáo tuổi nợ khách hàng</span></label>
+      <label class="opt"><input type="checkbox" name="ar_reports" value="statement"> <span class="ot">Sao kê công nợ gửi khách hàng</span></label>
+      <label class="opt"><input type="checkbox" name="ar_reports" value="collection_forecast"> <span class="ot">Dự báo thu tiền</span></label>
+      <label class="opt"><input type="checkbox" name="ar_reports" value="bad_debt"> <span class="ot">Theo dõi nợ xấu / trích lập dự phòng</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điểm khó khăn lớn nhất trong quy trình AR hiện tại</label>
+    <textarea name="ar_pain" placeholder="Ví dụ: Khó biết hóa đơn nào chưa được thanh toán khi có nhiều giao dịch trong tháng..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(3,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(3,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 4 — AP: Công nợ phải trả
+════════════════════════════════════════ -->
+<div class="card" id="s4" data-mod="ap">
+  <div class="mod-badge">📤 Module AP</div>
+  <div class="sec-tag">Công nợ phải trả</div>
+  <h2>Quy trình xử lý hóa đơn mua &amp; thanh toán nhà cung cấp</h2>
+  <p class="sdesc">Dữ liệu phục vụ user stories về vòng đời hóa đơn mua hàng và phê duyệt chi.</p>
+
+  <div class="fg" id="fg-ap-matching">
+    <label class="lbl">Có thực hiện đối chiếu 3 chiều (PO – Phiếu nhập kho – Hóa đơn NCC) không?<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="ap_matching" value="full_3way"> <span class="ot">Có — đối chiếu cả 3: đơn mua (PO), phiếu nhập kho, hóa đơn</span></label>
+      <label class="opt"><input type="radio" name="ap_matching" value="2way"> <span class="ot">2 chiều — chỉ đối chiếu hóa đơn với phiếu nhập kho</span></label>
+      <label class="opt"><input type="radio" name="ap_matching" value="invoice_only"> <span class="ot">Không đối chiếu — hạch toán thẳng theo hóa đơn</span></label>
+    </div>
+    <div class="err">Vui lòng chọn phương thức đối chiếu.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Hóa đơn NCC được xử lý theo quy trình nào?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="ap_flow" value="scan_upload"> <span class="ot">Nhận hóa đơn giấy → scan → nhập liệu vào hệ thống</span></label>
+      <label class="opt"><input type="radio" name="ap_flow" value="einvoice_auto"> <span class="ot">Nhận HĐĐT → hệ thống tự đọc dữ liệu</span></label>
+      <label class="opt"><input type="radio" name="ap_flow" value="manual_only"> <span class="ot">Nhập tay toàn bộ từ hóa đơn giấy</span></label>
+      <label class="opt"><input type="radio" name="ap_flow" value="mixed_ap"> <span class="ot">Kết hợp — vừa HĐĐT vừa hóa đơn giấy</span></label>
+    </div>
+  </div>
+
+  <div class="fg" id="fg-ap-approval">
+    <label class="lbl">Quy trình phê duyệt thanh toán NCC<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="ap_approval" value="kt_truong_only"> <span class="ot">Kế toán trưởng duyệt tất cả</span></label>
+      <label class="opt"><input type="radio" name="ap_approval" value="by_amount"> <span class="ot">Phân cấp theo số tiền — nhỏ kế toán trưởng, lớn có thêm giám đốc</span></label>
+      <label class="opt"><input type="radio" name="ap_approval" value="by_dept"> <span class="ot">Trưởng bộ phận đề xuất + kế toán trưởng duyệt</span></label>
+      <label class="opt"><input type="radio" name="ap_approval" value="board"> <span class="ot">Hội đồng quản trị duyệt cho khoản lớn</span></label>
+    </div>
+    <div class="err">Vui lòng chọn quy trình phê duyệt AP.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điều khoản thanh toán phổ biến với nhà cung cấp</label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="ap_terms" value="cod"> <span class="ot">Trả ngay khi nhận hàng</span></label>
+      <label class="opt"><input type="radio" name="ap_terms" value="net30ap"> <span class="ot">30 ngày</span></label>
+      <label class="opt"><input type="radio" name="ap_terms" value="net60ap"> <span class="ot">60 ngày</span></label>
+      <label class="opt"><input type="radio" name="ap_terms" value="advance"> <span class="ot">Đặt cọc trước một phần</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Báo cáo AP nào doanh nghiệp cần? (chọn tất cả)</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="ap_reports" value="aging_ap"> <span class="ot">Tuổi nợ phải trả theo NCC</span></label>
+      <label class="opt"><input type="checkbox" name="ap_reports" value="payment_schedule"> <span class="ot">Lịch thanh toán theo đến hạn</span></label>
+      <label class="opt"><input type="checkbox" name="ap_reports" value="vendor_ledger"> <span class="ot">Sổ công nợ từng nhà cung cấp</span></label>
+      <label class="opt"><input type="checkbox" name="ap_reports" value="overdue_ap"> <span class="ot">Hóa đơn quá hạn chưa thanh toán</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điểm khó khăn lớn nhất trong quy trình AP</label>
+    <textarea name="ap_pain" placeholder="Ví dụ: Hay bị trùng hóa đơn khi NCC gửi lại, khó kiểm soát khoản đặt cọc..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(4,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(4,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 5 — Cash & Bank
+════════════════════════════════════════ -->
+<div class="card" id="s5" data-mod="cash">
+  <div class="mod-badge">💰 Module Cash &amp; Bank</div>
+  <div class="sec-tag">Tiền mặt &amp; Ngân hàng</div>
+  <h2>Quản lý quỹ, giao dịch ngân hàng &amp; đối chiếu</h2>
+  <p class="sdesc">Dữ liệu cho user stories về kiểm soát quỹ tiền mặt và đối chiếu ngân hàng.</p>
+
+  <div class="fg" id="fg-cash-petty">
+    <label class="lbl">Quỹ tiền mặt được quản lý như thế nào?<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="cash_petty" value="one_fund"> <span class="ot">Một quỹ tiền mặt trung tâm</span></label>
+      <label class="opt"><input type="radio" name="cash_petty" value="multi_fund"> <span class="ot">Nhiều quỹ theo bộ phận / chi nhánh</span></label>
+      <label class="opt"><input type="radio" name="cash_petty" value="no_cash"> <span class="ot">Không có quỹ tiền mặt — toàn bộ qua ngân hàng</span></label>
+    </div>
+    <div class="err">Vui lòng chọn cách quản lý quỹ.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Hạn mức chi tiền mặt một lần không cần phê duyệt đặc biệt</label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="cash_limit" value="under500k"> <span class="ot">Dưới 500.000 đồng</span></label>
+      <label class="opt"><input type="radio" name="cash_limit" value="500k_2m"> <span class="ot">500.000 – 2 triệu</span></label>
+      <label class="opt"><input type="radio" name="cash_limit" value="2m_5m"> <span class="ot">2 – 5 triệu</span></label>
+      <label class="opt"><input type="radio" name="cash_limit" value="no_limit_c"> <span class="ot">Không có hạn mức cố định</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Số tài khoản ngân hàng doanh nghiệp đang sử dụng</label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="bank_count" value="1"> <span class="ot">1 tài khoản</span></label>
+      <label class="opt"><input type="radio" name="bank_count" value="2_3"> <span class="ot">2–3 tài khoản</span></label>
+      <label class="opt"><input type="radio" name="bank_count" value="4plus"> <span class="ot">4 tài khoản trở lên</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Quy trình đối chiếu ngân hàng (bank reconciliation)<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="bank_recon" value="daily_auto"> <span class="ot">Hàng ngày — hệ thống tự đối chiếu qua API ngân hàng</span></label>
+      <label class="opt"><input type="radio" name="bank_recon" value="daily_manual"> <span class="ot">Hàng ngày — kế toán đối chiếu thủ công với sao kê</span></label>
+      <label class="opt"><input type="radio" name="bank_recon" value="monthly"> <span class="ot">Hàng tháng — đối chiếu khi đóng sổ</span></label>
+      <label class="opt"><input type="radio" name="bank_recon" value="no_recon"> <span class="ot">Chưa có quy trình đối chiếu chính thức</span></label>
+    </div>
+    <div class="err">Vui lòng chọn quy trình đối chiếu.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Phương thức thanh toán doanh nghiệp đang sử dụng (chọn tất cả)</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="pay_methods" value="bank_transfer"> <span class="ot">Chuyển khoản ngân hàng</span></label>
+      <label class="opt"><input type="checkbox" name="pay_methods" value="cash"> <span class="ot">Tiền mặt</span></label>
+      <label class="opt"><input type="checkbox" name="pay_methods" value="ewallet"> <span class="ot">Ví điện tử (MoMo, ZaloPay...)</span></label>
+      <label class="opt"><input type="checkbox" name="pay_methods" value="check"> <span class="ot">Séc / Ủy nhiệm chi</span></label>
+      <label class="opt"><input type="checkbox" name="pay_methods" value="card"> <span class="ot">Thẻ doanh nghiệp</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điểm khó khăn trong quản lý tiền mặt &amp; ngân hàng</label>
+    <textarea name="cash_pain" placeholder="Ví dụ: Khó theo dõi số dư thực tế trong ngày, hay chênh lệch khi đối chiếu sao kê..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(5,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(5,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 6 — Tax & HĐĐT
+════════════════════════════════════════ -->
+<div class="card" id="s6" data-mod="tax">
+  <div class="mod-badge">🧾 Module Thuế &amp; HĐĐT</div>
+  <div class="sec-tag">Thuế &amp; Hóa đơn điện tử</div>
+  <h2>Kê khai thuế &amp; vòng đời hóa đơn điện tử</h2>
+  <p class="sdesc">Dữ liệu cho user stories về xuất HĐĐT, kê khai VAT, TNDN, TNCN.</p>
+
+  <div class="fg" id="fg-tax-types">
+    <label class="lbl">Loại thuế doanh nghiệp phải kê khai (chọn tất cả)<span class="req">*</span></label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="tax_types" value="vat"> <span class="ot">Thuế GTGT (VAT)</span></label>
+      <label class="opt"><input type="checkbox" name="tax_types" value="cit"> <span class="ot">Thuế TNDN</span></label>
+      <label class="opt"><input type="checkbox" name="tax_types" value="pit"> <span class="ot">Thuế TNCN (quyết toán)</span></label>
+      <label class="opt"><input type="checkbox" name="tax_types" value="fct"> <span class="ot">Thuế nhà thầu nước ngoài</span></label>
+      <label class="opt"><input type="checkbox" name="tax_types" value="excise"> <span class="ot">Thuế tiêu thụ đặc biệt</span></label>
+      <label class="opt"><input type="checkbox" name="tax_types" value="other_tax"> <span class="ot">Thuế khác (môn bài, tài nguyên...)</span></label>
+    </div>
+    <div class="err" id="err-tax">Vui lòng chọn ít nhất một loại thuế.</div>
+  </div>
+
+  <div class="fg" id="fg-vat-period">
+    <label class="lbl">Kỳ kê khai VAT<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="vat_period" value="monthly"> <span class="ot">Hàng tháng</span></label>
+      <label class="opt"><input type="radio" name="vat_period" value="quarterly"> <span class="ot">Hàng quý</span></label>
+      <label class="opt"><input type="radio" name="vat_period" value="na"> <span class="ot">Không áp dụng VAT</span></label>
+    </div>
+    <div class="err">Vui lòng chọn kỳ kê khai VAT.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Nhà cung cấp HĐĐT đang sử dụng</label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="einvoice_vendor" value="misa"> <span class="ot">MISA meInvoice</span></label>
+      <label class="opt"><input type="radio" name="einvoice_vendor" value="viettel"> <span class="ot">Viettel-CA</span></label>
+      <label class="opt"><input type="radio" name="einvoice_vendor" value="vnpt"> <span class="ot">VNPT Invoice</span></label>
+      <label class="opt"><input type="radio" name="einvoice_vendor" value="other_ei"> <span class="ot">Nhà cung cấp khác</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Quy trình xuất HĐĐT từ hệ thống kế toán</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="einvoice_flow" value="auto_from_sale"> <span class="ot">Tự động từ module bán hàng khi xác nhận đơn hàng</span></label>
+      <label class="opt"><input type="radio" name="einvoice_flow" value="manual_from_acc"> <span class="ot">Kế toán tạo thủ công dựa trên phiếu xuất kho / hợp đồng</span></label>
+      <label class="opt"><input type="radio" name="einvoice_flow" value="separate_system"> <span class="ot">Dùng hệ thống HĐĐT riêng biệt, nhập lại vào kế toán</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Xử lý hóa đơn điều chỉnh / hủy như thế nào?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="einvoice_adjust" value="replace"> <span class="ot">Lập hóa đơn thay thế</span></label>
+      <label class="opt"><input type="radio" name="einvoice_adjust" value="adjustment_note"> <span class="ot">Lập hóa đơn điều chỉnh (tăng/giảm)</span></label>
+      <label class="opt"><input type="radio" name="einvoice_adjust" value="cancel_new"> <span class="ot">Hủy hóa đơn cũ, lập hóa đơn mới</span></label>
+      <label class="opt"><input type="radio" name="einvoice_adjust" value="unsure"> <span class="ot">Chưa rõ / chưa gặp trường hợp này</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điểm khó khăn trong kê khai thuế / HĐĐT</label>
+    <textarea name="tax_pain" placeholder="Ví dụ: Hay phát sinh chênh lệch giữa VAT đầu ra trong phần mềm kế toán và trên cổng thuế điện tử..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(6,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(6,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 7 — Payroll Accounting
+════════════════════════════════════════ -->
+<div class="card" id="s7" data-mod="payroll">
+  <div class="mod-badge">👥 Module Kế toán Lương</div>
+  <div class="sec-tag">Kế toán lương &amp; bảo hiểm</div>
+  <h2>Tính lương, trích BHXH &amp; hạch toán chi phí nhân công</h2>
+  <p class="sdesc">Dữ liệu cho user stories về vòng đời bảng lương và hạch toán chi phí lương.</p>
+
+  <div class="fg" id="fg-salary-struct">
+    <label class="lbl">Cấu trúc lương tại doanh nghiệp (chọn tất cả áp dụng)<span class="req">*</span></label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="salary_struct" value="base"> <span class="ot">Lương cơ bản / lương bậc</span></label>
+      <label class="opt"><input type="checkbox" name="salary_struct" value="allowance"> <span class="ot">Phụ cấp (xăng xe, ăn trưa, điện thoại...)</span></label>
+      <label class="opt"><input type="checkbox" name="salary_struct" value="kpi_bonus"> <span class="ot">Thưởng KPI / hiệu suất</span></label>
+      <label class="opt"><input type="checkbox" name="salary_struct" value="overtime"> <span class="ot">Lương làm thêm giờ</span></label>
+      <label class="opt"><input type="checkbox" name="salary_struct" value="commission"> <span class="ot">Hoa hồng / doanh số</span></label>
+      <label class="opt"><input type="checkbox" name="salary_struct" value="project_pay"> <span class="ot">Lương theo dự án / công trình</span></label>
+    </div>
+    <div class="err" id="err-salary">Vui lòng chọn ít nhất một thành phần lương.</div>
+  </div>
+
+  <div class="fg" id="fg-payroll-approval">
+    <label class="lbl">Quy trình duyệt bảng lương<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="payroll_approval" value="kt_truong"> <span class="ot">Kế toán lương lập → Kế toán trưởng duyệt → Chuyển khoản</span></label>
+      <label class="opt"><input type="radio" name="payroll_approval" value="hr_then_kt"> <span class="ot">HR xác nhận công → Kế toán tính lương → Kế toán trưởng duyệt → Giám đốc ký</span></label>
+      <label class="opt"><input type="radio" name="payroll_approval" value="owner_direct"> <span class="ot">Chủ doanh nghiệp duyệt trực tiếp</span></label>
+    </div>
+    <div class="err">Vui lòng chọn quy trình duyệt lương.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Phân bổ chi phí lương theo</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="payroll_alloc" value="dept"> <span class="ot">Phòng ban / bộ phận</span></label>
+      <label class="opt"><input type="radio" name="payroll_alloc" value="project"> <span class="ot">Dự án / công trình</span></label>
+      <label class="opt"><input type="radio" name="payroll_alloc" value="cost_center"> <span class="ot">Trung tâm chi phí</span></label>
+      <label class="opt"><input type="radio" name="payroll_alloc" value="no_alloc"> <span class="ot">Không phân bổ — hạch toán tập trung</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Hình thức trả lương</label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="pay_method_salary" value="bank_only"> <span class="ot">100% chuyển khoản ngân hàng</span></label>
+      <label class="opt"><input type="radio" name="pay_method_salary" value="cash_only"> <span class="ot">100% tiền mặt</span></label>
+      <label class="opt"><input type="radio" name="pay_method_salary" value="mixed_pay"> <span class="ot">Kết hợp (một phần CK, một phần tiền mặt)</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điểm khó khăn trong kế toán lương</label>
+    <textarea name="payroll_pain" placeholder="Ví dụ: Tỷ lệ BHXH thay đổi liên tục, khó tự động cập nhật; hay bị sai khi nhân viên vào/ra giữa tháng..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(7,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(7,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 8 — Fixed Assets
+════════════════════════════════════════ -->
+<div class="card" id="s8" data-mod="assets">
+  <div class="mod-badge">🏗️ Module TSCĐ</div>
+  <div class="sec-tag">Tài sản cố định</div>
+  <h2>Vòng đời TSCĐ &amp; khấu hao</h2>
+  <p class="sdesc">Dữ liệu cho user stories về mua — sử dụng — điều chuyển — thanh lý tài sản.</p>
+
+  <div class="fg" id="fg-dep-method">
+    <label class="lbl">Phương pháp khấu hao đang áp dụng (chọn tất cả nếu dùng nhiều phương pháp)<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="checkbox" name="dep_method" value="straight_line"> <span class="ot">Đường thẳng (Straight-line) — phổ biến nhất</span></label>
+      <label class="opt"><input type="checkbox" name="dep_method" value="declining"> <span class="ot">Số dư giảm dần (Declining balance)</span></label>
+      <label class="opt"><input type="checkbox" name="dep_method" value="units"> <span class="ot">Theo sản lượng / khối lượng sử dụng</span></label>
+    </div>
+    <div class="err" id="err-dep">Vui lòng chọn phương pháp khấu hao.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Sự kiện vòng đời TSCĐ nào hệ thống cần xử lý? (chọn tất cả)</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="asset_events" value="purchase"> <span class="ot">Mua mới / ghi nhận ban đầu</span></label>
+      <label class="opt"><input type="checkbox" name="asset_events" value="transfer"> <span class="ot">Điều chuyển giữa bộ phận</span></label>
+      <label class="opt"><input type="checkbox" name="asset_events" value="revalue"> <span class="ot">Đánh giá lại tài sản</span></label>
+      <label class="opt"><input type="checkbox" name="asset_events" value="impair"> <span class="ot">Giảm giá trị do hư hỏng</span></label>
+      <label class="opt"><input type="checkbox" name="asset_events" value="dispose"> <span class="ot">Thanh lý / nhượng bán</span></label>
+      <label class="opt"><input type="checkbox" name="asset_events" value="inventory_check"> <span class="ot">Kiểm kê tài sản định kỳ</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điểm khó khăn trong quản lý TSCĐ</label>
+    <textarea name="assets_pain" placeholder="Ví dụ: Khó biết tài sản đang ở phòng nào, hay quên tính khấu hao khi mua tài sản giữa tháng..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(8,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(8,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 9 — Inventory Accounting
+════════════════════════════════════════ -->
+<div class="card" id="s9" data-mod="inventory">
+  <div class="mod-badge">📦 Module Kế toán Hàng tồn kho</div>
+  <div class="sec-tag">Hàng tồn kho</div>
+  <h2>Giá vốn, phương pháp tính giá &amp; kiểm kê</h2>
+  <p class="sdesc">Dữ liệu cho user stories về hạch toán nhập-xuất-tồn kho.</p>
+
+  <div class="fg" id="fg-inv-method">
+    <label class="lbl">Phương pháp tính giá xuất kho<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="inv_method" value="fifo"> <span class="ot">Nhập trước xuất trước (FIFO)</span></label>
+      <label class="opt"><input type="radio" name="inv_method" value="average"> <span class="ot">Giá bình quân gia quyền</span></label>
+      <label class="opt"><input type="radio" name="inv_method" value="specific"> <span class="ot">Đích danh (specific identification)</span></label>
+      <label class="opt"><input type="radio" name="inv_method" value="undecided"> <span class="ot">Chưa quyết định / đang cân nhắc</span></label>
+    </div>
+    <div class="err">Vui lòng chọn phương pháp tính giá.</div>
+  </div>
+
+  <div class="fg" id="fg-inv-system">
+    <label class="lbl">Hệ thống kiểm kê hàng tồn kho<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="inv_system" value="perpetual"> <span class="ot">Liên tục (Perpetual) — cập nhật số lượng mỗi giao dịch</span></label>
+      <label class="opt"><input type="radio" name="inv_system" value="periodic"> <span class="ot">Định kỳ (Periodic) — kiểm kê cuối tháng/quý</span></label>
+      <label class="opt"><input type="radio" name="inv_system" value="mixed_inv"> <span class="ot">Kết hợp tuỳ loại hàng hóa</span></label>
+    </div>
+    <div class="err">Vui lòng chọn hệ thống kiểm kê.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Cách hạch toán hàng tồn kho theo phương pháp nào (khai báo với cơ quan thuế)?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="inv_acc_method" value="kk"> <span class="ot">Kiểm kê định kỳ (phương pháp kê khai định kỳ)</span></label>
+      <label class="opt"><input type="radio" name="inv_acc_method" value="tx"> <span class="ot">Ghi nhận thường xuyên (phương pháp kê khai thường xuyên)</span></label>
+      <label class="opt"><input type="radio" name="inv_acc_method" value="inv_unsure"> <span class="ot">Không rõ</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điểm khó khăn trong kế toán hàng tồn kho</label>
+    <textarea name="inventory_pain" placeholder="Ví dụ: Số liệu kho phần mềm hay lệch với thực tế kiểm đếm, khó phân biệt giá vốn theo lô hàng..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(9,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(9,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 10 — GL & Financial Reporting
+════════════════════════════════════════ -->
+<div class="card" id="s10" data-mod="gl">
+  <div class="mod-badge">📊 Module Sổ cái &amp; BCTC</div>
+  <div class="sec-tag">Sổ cái &amp; Báo cáo tài chính</div>
+  <h2>Bút toán, đóng kỳ &amp; lập báo cáo tài chính</h2>
+  <p class="sdesc">Dữ liệu cho user stories về quy trình đóng sổ và xuất BCTC theo VAS.</p>
+
+  <div class="fg" id="fg-close-checklist">
+    <label class="lbl">Các bước trong quy trình đóng kỳ kế toán (chọn tất cả đang thực hiện)<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="checkbox" name="close_steps" value="recon_bank"> <span class="ot">Đối chiếu số dư ngân hàng</span></label>
+      <label class="opt"><input type="checkbox" name="close_steps" value="recon_ar_ap"> <span class="ot">Đối chiếu công nợ AR/AP với đối tác</span></label>
+      <label class="opt"><input type="checkbox" name="close_steps" value="accruals"> <span class="ot">Ghi nhận chi phí phải trả / doanh thu chưa thực hiện</span></label>
+      <label class="opt"><input type="checkbox" name="close_steps" value="depreciation"> <span class="ot">Tính và hạch toán khấu hao</span></label>
+      <label class="opt"><input type="checkbox" name="close_steps" value="inventory_adj"> <span class="ot">Điều chỉnh hàng tồn kho sau kiểm kê</span></label>
+      <label class="opt"><input type="checkbox" name="close_steps" value="fx_revalue"> <span class="ot">Đánh giá lại chênh lệch tỷ giá ngoại tệ</span></label>
+      <label class="opt"><input type="checkbox" name="close_steps" value="tax_provision"> <span class="ot">Trích lập thuế TNDN tạm tính</span></label>
+      <label class="opt"><input type="checkbox" name="close_steps" value="profit_alloc"> <span class="ot">Phân bổ lợi nhuận / kết chuyển cuối kỳ</span></label>
+    </div>
+    <div class="err" id="err-close">Vui lòng chọn ít nhất một bước đóng kỳ.</div>
+  </div>
+
+  <div class="fg" id="fg-fin-reports">
+    <label class="lbl">Báo cáo tài chính nào doanh nghiệp phải lập<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="checkbox" name="fin_reports" value="bs"> <span class="ot">Bảng cân đối kế toán (BCĐKT)</span></label>
+      <label class="opt"><input type="checkbox" name="fin_reports" value="is"> <span class="ot">Báo cáo kết quả kinh doanh (BCKQKD)</span></label>
+      <label class="opt"><input type="checkbox" name="fin_reports" value="cf"> <span class="ot">Báo cáo lưu chuyển tiền tệ (BCLCTT)</span></label>
+      <label class="opt"><input type="checkbox" name="fin_reports" value="notes"> <span class="ot">Thuyết minh BCTC</span></label>
+    </div>
+    <div class="err" id="err-finrep">Vui lòng chọn ít nhất một báo cáo.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Tần suất lập BCTC</label>
+    <div class="opts c2">
+      <label class="opt"><input type="radio" name="report_freq" value="monthly"> <span class="ot">Hàng tháng</span></label>
+      <label class="opt"><input type="radio" name="report_freq" value="quarterly"> <span class="ot">Hàng quý</span></label>
+      <label class="opt"><input type="radio" name="report_freq" value="annual"> <span class="ot">Hàng năm (bắt buộc)</span></label>
+      <label class="opt"><input type="radio" name="report_freq" value="on_demand"> <span class="ot">Theo yêu cầu của ban lãnh đạo</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Báo cáo quản trị nội bộ nào cần thiết? (chọn tất cả)</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="mgmt_reports" value="cash_flow_forecast"> <span class="ot">Dự báo dòng tiền 30/60 ngày</span></label>
+      <label class="opt"><input type="checkbox" name="mgmt_reports" value="profit_by_dept"> <span class="ot">Lợi nhuận theo bộ phận / sản phẩm</span></label>
+      <label class="opt"><input type="checkbox" name="mgmt_reports" value="budget_vs_actual"> <span class="ot">So sánh ngân sách vs thực tế</span></label>
+      <label class="opt"><input type="checkbox" name="mgmt_reports" value="kpi_dashboard"> <span class="ot">Dashboard KPI tài chính</span></label>
+      <label class="opt"><input type="checkbox" name="mgmt_reports" value="tax_summary"> <span class="ot">Tổng hợp thuế nộp trong kỳ</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điểm khó khăn trong đóng sổ &amp; lập BCTC</label>
+    <textarea name="gl_pain" placeholder="Ví dụ: Quy trình đóng tháng mất 5-7 ngày làm việc do phải chờ số liệu từ nhiều bộ phận..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(10,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-p" onclick="go(10,'next')">Tiếp theo &rarr;</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 11 — Tích hợp & yêu cầu hệ thống (luôn hiển thị)
+════════════════════════════════════════ -->
+<div class="card" id="s11" data-always="1">
+  <div class="sec-tag">Phần cuối / Luôn cần thiết</div>
+  <h2>Tích hợp module &amp; yêu cầu hệ thống</h2>
+  <p class="sdesc">Dữ liệu cho user stories về luồng dữ liệu giữa kế toán và các module khác trong ERP.</p>
+
+  <div class="fg">
+    <label class="lbl">Module nào trong ERP cần trao đổi dữ liệu tự động với kế toán? (chọn tất cả)</label>
+    <div class="opts">
+      <label class="opt"><input type="checkbox" name="integrations" value="sales"> <span class="ot">Bán hàng / CRM <span class="os">Đơn hàng → hóa đơn AR, doanh thu</span></span></label>
+      <label class="opt"><input type="checkbox" name="integrations" value="purchase"> <span class="ot">Mua hàng / Procurement <span class="os">PO → hóa đơn AP, công nợ NCC</span></span></label>
+      <label class="opt"><input type="checkbox" name="integrations" value="warehouse"> <span class="ot">Quản lý kho <span class="os">Nhập-xuất kho → giá vốn, hàng tồn</span></span></label>
+      <label class="opt"><input type="checkbox" name="integrations" value="hr"> <span class="ot">Nhân sự / HRM <span class="os">Chấm công, nhân viên → bảng lương</span></span></label>
+      <label class="opt"><input type="checkbox" name="integrations" value="project"> <span class="ot">Quản lý dự án <span class="os">Chi phí dự án → hạch toán theo công trình</span></span></label>
+      <label class="opt"><input type="checkbox" name="integrations" value="bank_api"> <span class="ot">Ngân hàng (API) <span class="os">Tự động đối chiếu sao kê</span></span></label>
+      <label class="opt"><input type="checkbox" name="integrations" value="tax_portal"> <span class="ot">Cổng thuế điện tử (HTKK, eTax) <span class="os">Kê khai, nộp thuế</span></span></label>
+    </div>
+  </div>
+
+  <div class="fg" id="fg-data-history">
+    <label class="lbl">Dữ liệu lịch sử cần thiết khi triển khai ERP mới<span class="req">*</span></label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="data_history" value="full_migrate"> <span class="ot">Migrate toàn bộ dữ liệu từ hệ thống cũ (2–5 năm)</span></label>
+      <label class="opt"><input type="radio" name="data_history" value="balance_only"> <span class="ot">Chỉ cần số dư đầu kỳ (opening balance)</span></label>
+      <label class="opt"><input type="radio" name="data_history" value="start_fresh"> <span class="ot">Bắt đầu từ đầu — không cần dữ liệu cũ</span></label>
+    </div>
+    <div class="err">Vui lòng chọn yêu cầu dữ liệu lịch sử.</div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Yêu cầu xuất dữ liệu / báo cáo quan trọng nhất</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="export_req" value="excel_export"> <span class="ot">Export ra Excel mọi báo cáo</span></label>
+      <label class="opt"><input type="checkbox" name="export_req" value="pdf_official"> <span class="ot">PDF có chữ ký số cho báo cáo chính thức</span></label>
+      <label class="opt"><input type="checkbox" name="export_req" value="api_out"> <span class="ot">API để hệ thống khác lấy dữ liệu</span></label>
+      <label class="opt"><input type="checkbox" name="export_req" value="audit_trail"> <span class="ot">Nhật ký kiểm toán (ai sửa gì, khi nào)</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Điều quan trọng nhất bạn muốn hệ thống ERP kế toán giải quyết</label>
+    <textarea name="top_priority" placeholder="Mô tả ngắn gọn vấn đề số 1 mà hệ thống mới phải giải quyết được..."></textarea>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Email liên hệ (nếu muốn nhận bản tóm tắt kết quả nghiên cứu)</label>
+    <p class="hint">Không bắt buộc · Bảo mật · Không dùng cho marketing</p>
+    <input type="email" name="contact_email" placeholder="email@example.com" />
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="go(11,'prev')">&larr; Quay lại</button>
+    <button class="btn btn-ok" onclick="submitSurvey()">Gửi khảo sát ✓</button>
+  </div>
+</div>
+
+<!-- Success -->
+<div class="success" id="successCard">
+  <div class="succ-ico">✓</div>
+  <h2>Cảm ơn bạn đã tham gia!</h2>
+  <p>Phản hồi của bạn đã được ghi nhận và sẽ đóng góp trực tiếp vào việc xây dựng tài liệu nghiệp vụ (user stories &amp; business rules) cho module kế toán ERP phù hợp với thực tế SME Việt Nam.</p>
+  <button class="btn-dl" onclick="downloadJSON()">Tải bản sao phản hồi (JSON)</button>
+</div>
+
+<div class="foot">Khảo sát ẩn danh · Chỉ dùng cho mục đích nghiên cứu &amp; phát triển tài liệu nghiệp vụ</div>
+
+<!-- Formspree hidden form -->
+<form id="hiddenForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" style="display:none">
+  <input type="hidden" name="_subject" value="[ERP Kế toán SME] Phản hồi khảo sát mới" />
+</form>
+
+<script>
+// ── State ──
+const surveyData = {};
+let sectionOrder = [];   // computed after module selection
+
+// All section IDs in natural order
+const ALL_SECTIONS = [1,2,3,4,5,6,7,8,9,10,11];
+
+// Map section id → module flag (null = always shown)
+const SECTION_MOD = { 1:null, 2:null, 3:'ar', 4:'ap', 5:'cash', 6:'tax', 7:'payroll', 8:'assets', 9:'inventory', 10:'gl', 11:null };
+
+function buildOrder() {
+  const checked = [...document.querySelectorAll('input[name="mod"]:checked')].map(x => x.value);
+  sectionOrder = ALL_SECTIONS.filter(id => {
+    const mod = SECTION_MOD[id];
+    return mod === null || checked.includes(mod);
+  });
+}
+
+function currentIdx() { return sectionOrder.findIndex(id => document.getElementById('s'+id).classList.contains('active')); }
+
+function updateProgress() {
+  const idx = currentIdx();
+  const total = sectionOrder.length;
+  const pct = Math.round(((idx+1) / total) * 100);
+  document.getElementById('pFill').style.width = pct + '%';
+  document.getElementById('pPct').textContent = pct + '%';
+  const sec = sectionOrder[idx];
+  const modLabel = SECTION_MOD[sec] ? ` · ${SECTION_MOD[sec].toUpperCase()}` : '';
+  document.getElementById('pLbl').textContent = `Phần ${idx+1}/${total}${modLabel}`;
+}
+
+function go(fromId, dir) {
+  if (dir === 'next') {
+    if (!validate(fromId)) return;
+    collect(fromId);
+    if (fromId === 1) buildOrder();
+  }
+  const idx = sectionOrder.findIndex(id => id === fromId);
+  const nextId = dir === 'next' ? sectionOrder[idx+1] : sectionOrder[idx-1];
+  if (!nextId) return;
+  document.getElementById('s'+fromId).classList.remove('active');
+  document.getElementById('s'+nextId).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+// ── Validation ──
+function validate(sec) {
+  let ok = true;
+  const requireRadio = (name, fg) => {
+    const el = document.getElementById(fg);
+    if (!el) return true;
+    if (!document.querySelector(`input[name="${name}"]:checked`)) {
+      el.classList.add('fe'); return false;
+    }
+    el.classList.remove('fe'); return true;
+  };
+  const requireSelect = (id, fg) => {
+    const el = document.getElementById(fg); if (!el) return true;
+    if (!document.getElementById(id)?.value) { el.classList.add('fe'); return false; }
+    el.classList.remove('fe'); return true;
+  };
+  const requireCheckbox = (name, fg, errId) => {
+    const el = document.getElementById(fg); if (!el) return true;
+    const err = errId ? document.getElementById(errId) : null;
+    if (!document.querySelector(`input[name="${name}"]:checked`)) {
+      el.classList.add('fe'); if (err) err.style.display='block'; return false;
+    }
+    el.classList.remove('fe'); if (err) err.style.display='none'; return true;
+  };
+
+  if (sec === 1) {
+    ok = requireRadio('size','fg-size') & ok;
+    ok = requireSelect('sel-industry','fg-industry') & ok;
+    ok = requireRadio('std','fg-std') & ok;
+    ok = requireRadio('role','fg-role') & ok;
+    ok = requireCheckbox('mod','fg-modules','err-mod') & ok;
+  }
+  if (sec === 2) {
+    ok = requireCheckbox('actors','fg-actors','err-actors') & ok;
+    ok = requireRadio('approval_level','fg-approval-level') & ok;
+  }
+  if (sec === 3) {
+    ok = requireRadio('ar_trigger','fg-ar-trigger') & ok;
+    ok = requireRadio('ar_terms','fg-ar-terms') & ok;
+  }
+  if (sec === 4) {
+    ok = requireRadio('ap_matching','fg-ap-matching') & ok;
+    ok = requireRadio('ap_approval','fg-ap-approval') & ok;
+  }
+  if (sec === 5) {
+    ok = requireRadio('cash_petty','fg-cash-petty') & ok;
+    ok = requireRadio('bank_recon','fg-cash-petty') & ok;  // fallback — not gated
+    ok = requireRadio('bank_recon','fg-cash-petty') | true; // bank_recon not required
+    ok = requireRadio('cash_petty','fg-cash-petty') & ok;
+  }
+  if (sec === 6) {
+    ok = requireCheckbox('tax_types','fg-tax-types','err-tax') & ok;
+    ok = requireRadio('vat_period','fg-vat-period') & ok;
+  }
+  if (sec === 7) {
+    ok = requireCheckbox('salary_struct','fg-salary-struct','err-salary') & ok;
+    ok = requireRadio('payroll_approval','fg-payroll-approval') & ok;
+  }
+  if (sec === 8) {
+    ok = requireCheckbox('dep_method','fg-dep-method','err-dep') & ok;
+  }
+  if (sec === 9) {
+    ok = requireRadio('inv_method','fg-inv-method') & ok;
+    ok = requireRadio('inv_system','fg-inv-system') & ok;
+  }
+  if (sec === 10) {
+    ok = requireCheckbox('close_steps','fg-close-checklist','err-close') & ok;
+    ok = requireCheckbox('fin_reports','fg-fin-reports','err-finrep') & ok;
+  }
+  if (sec === 11) {
+    ok = requireRadio('data_history','fg-data-history') & ok;
+  }
+  return !!ok;
+}
+
+// ── Data collection ──
+function collect(sec) {
+  const card = document.getElementById('s'+sec);
+  card.querySelectorAll('input[type="radio"]:checked').forEach(r => { surveyData[r.name] = r.value; });
+  const cbGroups = {};
+  card.querySelectorAll('input[type="checkbox"]').forEach(c => {
+    if (!cbGroups[c.name]) cbGroups[c.name] = [];
+    if (c.checked) cbGroups[c.name].push(c.value);
+  });
+  Object.assign(surveyData, cbGroups);
+  card.querySelectorAll('select, input[type="text"], input[type="email"], textarea').forEach(el => {
+    if (el.name && el.value.trim()) surveyData[el.name] = el.value.trim();
+  });
+}
+
+// ── Submit ──
+function submitSurvey() {
+  if (!validate(11)) return;
+  collect(11);
+  surveyData._submitted_at = new Date().toISOString();
+  surveyData._modules_selected = [...document.querySelectorAll('input[name="mod"]:checked')].map(x=>x.value);
+
+  const form = document.getElementById('hiddenForm');
+  if (!form.action.includes('YOUR_FORM_ID')) {
+    const fd = new FormData();
+    Object.entries(surveyData).forEach(([k,v]) => fd.append(k, Array.isArray(v)?v.join(', '):v));
+    fetch(form.action, { method:'POST', body:fd, headers:{ Accept:'application/json' } })
+      .finally(showSuccess);
+  } else {
+    showSuccess();
+  }
+}
+
+function showSuccess() {
+  sectionOrder.forEach(id => document.getElementById('s'+id)?.classList.remove('active'));
+  document.getElementById('successCard').classList.add('active');
+  document.getElementById('pFill').style.width = '100%';
+  document.getElementById('pPct').textContent = '100%';
+  document.getElementById('pLbl').textContent = 'Hoàn thành';
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function downloadJSON() {
+  const blob = new Blob([JSON.stringify(surveyData, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'erp-accounting-survey.json';
+  a.click();
+}
+
+// ── Option highlight on change ──
+document.querySelectorAll('.opt').forEach(item => {
+  const inp = item.querySelector('input');
+  if (!inp) return;
+  inp.addEventListener('change', () => {
+    if (inp.type === 'radio') {
+      document.querySelectorAll(`input[name="${inp.name}"]`)
+        .forEach(r => r.closest('.opt')?.classList.remove('sel'));
+    }
+    if (inp.checked) item.classList.add('sel');
+    else item.classList.remove('sel');
+    // Clear field-error on parent fg
+    let fg = item.closest('[id^="fg-"]');
+    if (fg) { fg.classList.remove('fe'); const err = fg.querySelector('.err'); if(err) err.style.display='none'; }
+  });
+});
+
+// ── Init ──
+buildOrder();
+updateProgress();
+</script>
+</body>
+</html>
