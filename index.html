@@ -1171,6 +1171,35 @@
     </div>
   </div>
 
+  <div class="fg">
+    <label class="lbl">Draft document — có tạo provisional GL entry không?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="draft_gl_impact" value="no_gl"><span class="ot">Không — Draft không tạo GL entry nào</span></label>
+      <label class="opt"><input type="radio" name="draft_gl_impact" value="memo_only"><span class="ot">Memo entry — thấy trong preview nhưng chưa post vào sổ cái</span></label>
+      <label class="opt"><input type="radio" name="draft_gl_impact" value="provisional"><span class="ot">Provisional GL — tạo entry riêng (pending), xoá khi confirmed</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Auto-transition — hệ thống có tự động chuyển state không?</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="auto_transition" value="auto_post_approved"><span class="ot">Tự động Post sau khi Approved</span></label>
+      <label class="opt"><input type="checkbox" name="auto_transition" value="auto_due_date"><span class="ot">Tự động chuyển Overdue theo ngày đến hạn</span></label>
+      <label class="opt"><input type="checkbox" name="auto_transition" value="auto_close_paid"><span class="ot">Tự động Close khi thanh toán đủ 100%</span></label>
+      <label class="opt"><input type="checkbox" name="auto_transition" value="none"><span class="ot">Không — mọi chuyển state đều cần user action thủ công</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Khi cần sửa Posted document — phương pháp nào áp dụng?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="posted_correction" value="amendment"><span class="ot">Amendment — sửa trực tiếp, tạo amendment version, giữ nguyên số chứng từ</span></label>
+      <label class="opt"><input type="radio" name="posted_correction" value="pure_reverse"><span class="ot">Pure Reverse — tạo bút toán đảo ngược, đóng tài liệu gốc</span></label>
+      <label class="opt"><input type="radio" name="posted_correction" value="reverse_and_new"><span class="ot">Reverse + New — đảo ngược rồi tạo tài liệu mới với thông tin đúng</span></label>
+      <label class="opt"><input type="radio" name="posted_correction" value="depends_on_type"><span class="ot">Tuỳ loại chứng từ — mỗi loại HĐ/PC/NK có quy tắc khác nhau</span></label>
+    </div>
+  </div>
+
   <div class="nav">
     <button class="btn btn-s" onclick="go(13,'prev')">← Quay lại</button>
     <button class="btn btn-p" onclick="go(13,'next')">Tiếp theo →</button>
@@ -1553,6 +1582,26 @@
     </div>
   </div>
 
+  <div class="fg">
+    <label class="lbl">Shared master data — khi có nhiều entity, dữ liệu master dùng chung thế nào?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="shared_master" value="fully_shared"><span class="ot">Fully shared — customer/vendor/item dùng chung toàn bộ entities</span></label>
+      <label class="opt"><input type="radio" name="shared_master" value="shared_core"><span class="ot">Shared core + local override — master chung, giá/credit limit riêng từng entity</span></label>
+      <label class="opt"><input type="radio" name="shared_master" value="separate"><span class="ot">Hoàn toàn riêng — mỗi entity có master data độc lập</span></label>
+      <label class="opt"><input type="radio" name="shared_master" value="single_entity"><span class="ot">Chỉ một entity — không áp dụng</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Consolidation currency — báo cáo hợp nhất dùng đơn vị tiền tệ nào?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="consol_currency" value="vnd_only"><span class="ot">VND duy nhất — không cần consolidation bằng ngoại tệ</span></label>
+      <label class="opt"><input type="radio" name="consol_currency" value="usd_reporting"><span class="ot">USD reporting — báo cáo tổng hợp song song bằng USD</span></label>
+      <label class="opt"><input type="radio" name="consol_currency" value="parent_currency"><span class="ot">Parent company currency — tuỳ currency của công ty mẹ</span></label>
+      <label class="opt"><input type="radio" name="consol_currency" value="not_applicable"><span class="ot">Không áp dụng — đơn entity</span></label>
+    </div>
+  </div>
+
   <div class="nav">
     <button class="btn btn-s" onclick="go(16,'prev')">← Quay lại</button>
     <button class="btn btn-p" onclick="go(16,'next')">Tiếp theo →</button>
@@ -1873,6 +1922,35 @@
     </div>
   </div>
 
+  <div class="fg">
+    <label class="lbl">Immutable audit log — log hệ thống có bị admin xoá/sửa được không?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="immutable_log" value="write_once"><span class="ot">Write-once — kể cả super-admin không xoá được, lưu vào append-only store</span></label>
+      <label class="opt"><input type="radio" name="immutable_log" value="admin_can_purge"><span class="ot">Admin có thể purge sau khi hết thời hạn lưu trữ</span></label>
+      <label class="opt"><input type="radio" name="immutable_log" value="no_requirement"><span class="ot">Chưa có yêu cầu cụ thể</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Attachment retention — tài liệu đính kèm lưu bao lâu?</label>
+    <div class="opts">
+      <label class="opt"><input type="radio" name="attachment_retention" value="5yr"><span class="ot">5 năm — tối thiểu theo TT200/TT133</span></label>
+      <label class="opt"><input type="radio" name="attachment_retention" value="10yr"><span class="ot">10 năm — hồ sơ quan trọng theo Luật Kế toán 2015</span></label>
+      <label class="opt"><input type="radio" name="attachment_retention" value="indefinite"><span class="ot">Vô thời hạn — không xoá tự động</span></label>
+      <label class="opt"><input type="radio" name="attachment_retention" value="by_doc_type"><span class="ot">Tuỳ loại chứng từ — mỗi loại có chính sách retention riêng</span></label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label class="lbl">Role-based field masking — một số trường có bị ẩn theo role không?</label>
+    <div class="opts c2">
+      <label class="opt"><input type="checkbox" name="field_masking" value="salary_visibility"><span class="ot">Lương — chỉ HR/Giám đốc thấy chi tiết</span></label>
+      <label class="opt"><input type="checkbox" name="field_masking" value="margin_visibility"><span class="ot">Biên lợi nhuận — chỉ ban quản lý thấy</span></label>
+      <label class="opt"><input type="checkbox" name="field_masking" value="vendor_price"><span class="ot">Giá mua nhà cung cấp — chỉ bộ phận mua hàng thấy</span></label>
+      <label class="opt"><input type="checkbox" name="field_masking" value="none"><span class="ot">Không cần masking — mọi role thấy đủ thông tin</span></label>
+    </div>
+  </div>
+
   <hr class="div"/>
 
   <div class="fg">
@@ -2081,161 +2159,285 @@ function showSuccess() {
 }
 
 function downloadJSON() {
-  const normalized = {
-    company: { size:surveyData.size, industry:surveyData.industry, std:surveyData.std, role:surveyData.role },
-    modules: surveyData._modules_selected || [],
-    posting_rules: {
-      revenue_recognition: surveyData.rev_rec,
-      ar_account: surveyData.ar_account,
-      revenue_account: surveyData.rev_account,
-      vat_out_account: surveyData.vat_out_account,
-      vat_handling: surveyData.vat_handling,
-      discount_timing: surveyData.ar_discount,
-      withholding_tax: surveyData.wht,
-      auto_posting: surveyData.auto_posting,
-      multi_currency: { enabled: surveyData.fx_enabled, rate_source: surveyData.fx_rate_source, unrealized_reval: surveyData.fx_unrealized }
-    },
-    document_lifecycle: {
-      states: surveyData.doc_states,
-      post_edit_policy: surveyData.post_edit,
-      period_reopen_role: surveyData.period_reopen,
-      backdate_policy: surveyData.backdate,
-      audit_trail: surveyData.audit_level,
-      delete_policy: surveyData.delete_policy
-    },
-    ar: {
-      trigger: surveyData.rev_rec,
-      payment_terms: surveyData.ar_terms,
-      credit_limit: { policy: surveyData.ar_cl, override_role: surveyData.cl_override, log_override: surveyData.cl_log, exposure_scope: surveyData.cl_exposure },
-      payment_types: surveyData.ar_payment_types,
-      aging_buckets: surveyData.ar_aging,
-      reports: surveyData.ar_reports,
-      exceptions: { underpayment: surveyData.ar_underpay, overpayment: surveyData.ar_overpay, bad_debt: surveyData.bad_debt }
-    },
-    ap: {
-      matching: surveyData.ap_matching,
-      required_docs: surveyData.ap_docs,
-      dup_detection: surveyData.ap_dup,
-      no_po_policy: surveyData.ap_no_po,
-      approval: surveyData.ap_approval,
-      prepayment: surveyData.ap_prepay,
-      exceptions: { partial_receipt: surveyData.ap_partial_recv, retainage: surveyData.retainage }
-    },
-    inventory: {
-      costing_method: surveyData.inv_method,
-      cogs_timing: surveyData.cogs_timing,
-      landed_cost: surveyData.landed_cost,
-      negative_stock: surveyData.neg_stock,
-      revaluation: surveyData.inv_reval,
-      serial_lot: surveyData.serial_lot,
-      variance_handling: surveyData.inv_variance
-    },
-    payroll: {
-      structure: surveyData.salary_struct,
-      approval: surveyData.payroll_approval,
-      cost_allocation: surveyData.payroll_alloc,
-      exceptions: { prorate: surveyData.payroll_prorate, retroactive: surveyData.retro_pay }
-    },
-    gl: {
-      closing_steps: surveyData.close_steps,
-      close_sla: surveyData.close_sla,
-      financial_reports: surveyData.fin_reports,
-      report_freshness: surveyData.report_freshness,
-      drilldown: surveyData.report_drilldown,
-      mgmt_reports: surveyData.mgmt_reports,
-      export_formats: surveyData.export_fmt
-    },
-    integration: {
-      modules: surveyData.integrations,
-      sync_type: surveyData.sync_type,
-      source_of_truth: surveyData.sot,
-      flow_direction: surveyData.flow_dir
-    },
-    migration: {
-      current_systems: surveyData.current_sys,
-      volume: { ar_invoices: surveyData.vol_ar, ap_invoices: surveyData.vol_ap, je_per_month: surveyData.vol_je, customers: surveyData.count_customers, vendors: surveyData.count_vendors },
-      scope: surveyData.migrate_scope,
-      data_to_migrate: surveyData.migrate_data,
-      data_quality_issues: surveyData.data_quality
-    },
-    architecture: {
-      entity_structure: surveyData.entity_structure,
-      intercompany: surveyData.intercompany,
-      security: surveyData.security_req,
-      concurrent_users: surveyData.concurrent_users,
-      txn_per_day: surveyData.txn_per_day,
-      deployment: surveyData.deployment,
-      access: surveyData.access_req,
-      maker_checker: surveyData.maker_checker
-    },
-    pain_priorities: {
-      ar: { description: surveyData.ar_pain, severity: surveyData.ar_pain_sev, freq: surveyData.ar_pain_freq, compliance: surveyData.ar_pain_compliance, workaround: surveyData.ar_pain_workaround },
-      ap: { description: surveyData.ap_pain, freq: surveyData.ap_pain_freq, compliance: surveyData.ap_pain_compliance, workaround: surveyData.ap_pain_workaround }
-    },
-    document_state_machine: {
-      states: surveyData.doc_states,
-      transitions: {
-        draft_to_posted: surveyData.transition_post,
-        approve_can_reject: surveyData.transition_reject,
-        cancel_posted_by: surveyData.cancel_posted_by,
-        after_reversed: surveyData.after_reversed,
-        locked_fields_after_post: surveyData.locked_after_post
+  const d = surveyData;
+  const mods = d._modules_selected || [];
+
+  // Reference account codes keyed by standard
+  const accts = d.std === 'tt133'
+    ? { ar:'131', ap:'331', revenue:'511', vat_out:'3331', vat_in:'133', cash:'111', bank:'112', inventory:'156', cogs:'632', fx_diff:'413', wht:'3335' }
+    : { ar:'131', ap:'331', revenue:'511', vat_out:'3331', vat_in:'133', cash:'1111', bank:'1121', inventory:'1561', cogs:'632', fx_diff:'4131', wht:'3335' };
+
+  const CL_MODE = { none:'no_limit', soft:'soft_warning', hard:'hard_block', tiered:'tiered_approval' };
+
+  // Build state machine definition (shared across modules)
+  function buildStateMachine() {
+    const transitions = {};
+    if (d.transition_post)     transitions['draft→posted']     = { trigger: d.transition_post };
+    if (d.transition_reject)   transitions['approved→rejected'] = { trigger: 'manual', guard: 'approver_role' };
+    if (d.cancel_posted_by)    transitions['posted→cancelled']  = { allowed_by: d.cancel_posted_by, side_effect: 'create_reversal_entry' };
+    if (d.after_reversed)      transitions['cancelled→?']       = { next_state: d.after_reversed };
+    const invariants = {};
+    if (d.locked_after_post?.length) invariants.post_lock = { locked_fields: d.locked_after_post };
+    if (d.draft_gl_impact)           invariants.draft_gl  = d.draft_gl_impact;
+    if (d.auto_transition?.length)   invariants.auto_transitions = d.auto_transition;
+    return {
+      states: d.doc_states || [],
+      transitions,
+      invariants,
+      correction_method: d.posted_correction,
+      post_edit_policy: d.post_edit,
+      period_reopen_role: d.period_reopen,
+      backdate_policy: d.backdate,
+      audit_trail: d.audit_level,
+      delete_policy: d.delete_policy
+    };
+  }
+
+  // Build per-module posting journal entries
+  function arJournalEntries() {
+    const e = [{ dr: d.ar_account || accts.ar, cr: d.rev_account || accts.revenue, desc: 'Revenue recognition on ' + (d.rev_rec || 'trigger') }];
+    if (d.vat_out_account || accts.vat_out) e.push({ dr: d.ar_account || accts.ar, cr: d.vat_out_account || accts.vat_out, desc: 'VAT output' });
+    if (d.wht === 'yes') e.push({ dr: 'expense_account', cr: accts.wht, desc: 'Withholding tax payable' });
+    return e;
+  }
+
+  // Module specs
+  const modules = {};
+
+  if (mods.includes('ar')) {
+    modules.ar = {
+      state_machine: buildStateMachine(),
+      posting_rules: {
+        trigger: d.rev_rec,
+        journal_entries: arJournalEntries(),
+        discount_timing: d.ar_discount,
+        vat_handling: d.vat_handling,
+        multi_currency: d.fx_enabled === 'yes'
+          ? { rate_source: d.fx_rate_source, unrealized_reval: d.fx_unrealized, rate_date: d.fx_rate_date }
+          : { enabled: false }
       },
-      post_edit_policy: surveyData.post_edit,
-      period_reopen_role: surveyData.period_reopen,
-      backdate_policy: surveyData.backdate,
-      audit_trail: surveyData.audit_level,
-      delete_policy: surveyData.delete_policy
+      business_rules: {
+        credit_limit: {
+          mode: CL_MODE[d.ar_cl] || 'no_limit',
+          override_role: d.cl_override || null,
+          audit_required: d.cl_log === 'yes',
+          exposure_scope: d.cl_exposure || null
+        },
+        payment_terms: d.ar_terms,
+        payment_types: d.ar_payment_types,
+        aging_buckets: d.ar_aging,
+        exceptions: { underpayment: d.ar_underpay, overpayment: d.ar_overpay, bad_debt: d.bad_debt }
+      },
+      reports: d.ar_reports
+    };
+  }
+
+  if (mods.includes('ap')) {
+    modules.ap = {
+      state_machine: buildStateMachine(),
+      posting_rules: {
+        matching_policy: d.ap_matching,
+        required_docs: d.ap_docs,
+        dup_detection: d.ap_dup,
+        no_po_policy: d.ap_no_po
+      },
+      business_rules: {
+        approval_flow: d.ap_approval,
+        prepayment: d.ap_prepay,
+        exceptions: { partial_receipt: d.ap_partial_recv, retainage: d.retainage }
+      }
+    };
+  }
+
+  if (mods.includes('cash')) {
+    modules.cash_bank = {
+      posting_rules: { accounts: { cash: accts.cash, bank: accts.bank } }
+    };
+  }
+
+  if (mods.includes('inventory')) {
+    modules.inventory = {
+      costing: {
+        method: d.inv_method,
+        cogs_timing: d.cogs_timing,
+        accounts: { inventory: accts.inventory, cogs: accts.cogs },
+        landed_cost: d.landed_cost,
+        revaluation: d.inv_reval
+      },
+      business_rules: {
+        negative_stock: d.neg_stock,
+        serial_lot: d.serial_lot,
+        variance_handling: d.inv_variance
+      }
+    };
+  }
+
+  if (mods.includes('payroll')) {
+    modules.payroll = {
+      structure: d.salary_struct,
+      posting_rules: { cost_allocation: d.payroll_alloc },
+      business_rules: {
+        approval_flow: d.payroll_approval,
+        exceptions: { prorate: d.payroll_prorate, retroactive: d.retro_pay }
+      }
+    };
+  }
+
+  if (mods.includes('assets')) {
+    modules.fixed_assets = {};
+  }
+
+  if (mods.includes('gl')) {
+    modules.gl = {
+      closing: { steps: d.close_steps, sla_days: d.close_sla },
+      reports: {
+        financial: d.fin_reports,
+        management: d.mgmt_reports,
+        freshness: d.report_freshness,
+        drilldown: d.report_drilldown,
+        export_formats: d.export_fmt
+      }
+    };
+  }
+
+  // ── DSL output ────────────────────────────────────────────
+  const dsl = {
+    spec_version: '2.0',
+    generated_at: new Date().toISOString(),
+
+    context: {
+      company: { size: d.size, industry: d.industry, accounting_standard: d.std, respondent_role: d.role },
+      modules_in_scope: mods
     },
-    temporal_rules: {
-      date_types_tracked: surveyData.date_types,
-      doc_vs_posting_date: surveyData.doc_vs_post_date,
-      tax_date_separate: surveyData.tax_date_sep,
-      cutoff_policy: surveyData.cutoff_policy,
-      period_reopen_policy: surveyData.period_reopen_policy,
-      fx_rate_date: surveyData.fx_rate_date,
-      timezone: surveyData.timezone
+
+    document_lifecycle: {
+      state_machine: buildStateMachine(),
+      temporal_rules: {
+        date_types_tracked: d.date_types,
+        doc_vs_posting_date: d.doc_vs_post_date,
+        tax_date_separate: d.tax_date_sep,
+        cutoff_policy: d.cutoff_policy,
+        period_reopen_policy: d.period_reopen_policy,
+        fx_rate_date: d.fx_rate_date,
+        timezone: d.timezone
+      }
     },
+
     chart_of_accounts: {
-      format: surveyData.coa_format,
-      structure: surveyData.coa_structure,
-      segments: surveyData.coa_segments,
-      shared_across_entities: surveyData.coa_shared,
-      control_accounts_policy: surveyData.control_accounts,
-      manual_je_policy: surveyData.manual_je_policy,
-      maintenance_role: surveyData.coa_maintenance
+      format: d.coa_format,
+      structure: d.coa_structure,
+      segments: d.coa_segments,
+      shared_across_entities: d.coa_shared,
+      control_accounts_policy: d.control_accounts,
+      manual_je_policy: d.manual_je_policy,
+      maintenance_role: d.coa_maintenance,
+      reference_codes: accts
     },
+
+    posting_engine: {
+      auto_posting: d.auto_posting,
+      vat_handling: d.vat_handling,
+      multi_currency: d.fx_enabled === 'yes'
+        ? { rate_source: d.fx_rate_source, unrealized_reval: d.fx_unrealized, rate_date: d.fx_rate_date }
+        : { enabled: false }
+    },
+
+    modules,
+
     reconciliation: {
-      bank_match_strategy: surveyData.recon_strategy,
-      tolerance: surveyData.recon_tolerance,
-      partial_recon: surveyData.partial_recon,
-      auto_match: surveyData.auto_match,
-      unmatched_handling: surveyData.unmatched_handling,
-      subledger_recon_frequency: surveyData.subledger_recon,
-      subledger_mismatch_action: surveyData.subledger_mismatch
+      bank_match_strategy: d.recon_strategy,
+      tolerance: d.recon_tolerance,
+      partial_recon: d.partial_recon,
+      auto_match: d.auto_match,
+      unmatched_handling: d.unmatched_handling,
+      subledger_recon_frequency: d.subledger_recon,
+      subledger_mismatch_action: d.subledger_mismatch
     },
-    master_data_governance: {
-      customer_vendor_create: surveyData.master_create,
-      duplicate_detection: surveyData.dup_detect,
-      tax_code_validation: surveyData.tax_validation,
-      inactive_handling: surveyData.inactive_master,
-      item_governance: surveyData.item_governance
+
+    master_data: {
+      governance: {
+        customer_vendor_create: d.master_create,
+        duplicate_detection: d.dup_detect,
+        tax_code_validation: d.tax_validation,
+        inactive_handling: d.inactive_master,
+        item_governance: d.item_governance
+      },
+      multi_entity: {
+        entity_structure: d.entity_structure,
+        intercompany: d.intercompany,
+        shared_master: d.shared_master,
+        consolidation_currency: d.consol_currency
+      }
     },
+
     security_compliance: {
-      requirements: surveyData.security_req,
-      export_restriction: surveyData.export_restriction,
-      e_signature: surveyData.esign,
-      audit_retention: surveyData.audit_retention,
-      api_strategy: surveyData.api_strategy,
-      peak_load_periods: surveyData.peak_load
+      requirements: d.security_req,
+      immutable_audit_log: d.immutable_log === 'write_once',
+      audit_log_mode: d.immutable_log,
+      attachment_retention: d.attachment_retention,
+      field_masking: {
+        enabled: Array.isArray(d.field_masking) && !d.field_masking.includes('none') && d.field_masking.length > 0,
+        masked_fields: Array.isArray(d.field_masking) ? d.field_masking.filter(f => f !== 'none') : []
+      },
+      export_restriction: d.export_restriction,
+      e_signature: d.esign,
+      audit_retention: d.audit_retention,
+      api_strategy: d.api_strategy,
+      peak_load_periods: d.peak_load,
+      access_model: d.access_req,
+      maker_checker: d.maker_checker,
+      concurrent_users: d.concurrent_users,
+      txn_per_day: d.txn_per_day,
+      deployment: d.deployment
     },
-    _meta: { submitted_at: surveyData._submitted_at }
+
+    integration: {
+      connected_systems: d.integrations,
+      sync_type: d.sync_type,
+      source_of_truth: d.sot,
+      flow_direction: d.flow_dir
+    },
+
+    migration: {
+      current_systems: d.current_sys,
+      volume: {
+        ar_invoices_per_month: d.vol_ar,
+        ap_invoices_per_month: d.vol_ap,
+        je_per_month: d.vol_je,
+        customer_count: d.count_customers,
+        vendor_count: d.count_vendors
+      },
+      scope: d.migrate_scope,
+      data_to_migrate: d.migrate_data,
+      data_quality_issues: d.data_quality
+    },
+
+    pain_priorities: {
+      ar: { description: d.ar_pain, severity: d.ar_pain_sev, frequency: d.ar_pain_freq, compliance_risk: d.ar_pain_compliance, workaround: d.ar_pain_workaround },
+      ap: { description: d.ap_pain, frequency: d.ap_pain_freq, compliance_risk: d.ap_pain_compliance, workaround: d.ap_pain_workaround }
+    },
+
+    _meta: {
+      submitted_at: d._submitted_at,
+      contact_email: d.contact_email,
+      top_priority: d.top_priority,
+      spec_generator: 'ERP Accounting Survey v2.0',
+      usage_hints: [
+        'modules[*].state_machine → generate XState / workflow engine config',
+        'modules[*].posting_rules.journal_entries → generate posting matrix',
+        'modules.ar.business_rules.credit_limit → generate permission + guard config',
+        'chart_of_accounts.reference_codes → seed Prisma Account model',
+        'security_compliance.field_masking.masked_fields → generate row-level security policies',
+        'document_lifecycle.temporal_rules → generate period-close invariant tests',
+        'master_data.multi_entity → generate consolidation config'
+      ]
+    }
   };
 
-  const blob = new Blob([JSON.stringify(normalized, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify(dsl, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'erp-accounting-requirements.json';
+  a.download = 'erp-accounting-spec.json';
   a.click();
   URL.revokeObjectURL(a.href);
 }
